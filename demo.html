@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            display: block;
+            margin: 50px auto;
+        }
+        #save {
+            line-height: 30px;
+            font-size: 14px;
+            margin: 50px auto;
+            background: #fff;
+            /* border: 1px solid #ddd; */
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="draw" width="300" height="400"></canvas>
+
+    <a id="save">保存</a>
+
+    <script src="./canvas-poster.js"></script>
+
+    <script>
+
+        canvasPoster.init('#draw', {
+            width: 300,
+            height: 500,
+            guidelinesSpace: 20,
+            guidelines: true
+        }).painting([
+            {
+                type: 'text',
+                content: 'hello World!',
+                position: [160, 40],
+                font: '20px 黑体',
+                textAlign: 'left', // left center right
+                color: '#f0f',
+                textDecoration: 'line-through' // overline underline line-through
+            }, {
+                type: 'text',
+                content: '中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试',
+                position: [40, 80],
+                font: '18px',
+                textAlign: 'left',
+                color: '#f00',
+                maxWidth: '220'
+            }
+        ])
+        
+    </script>
+</body>
+
+</html>
