@@ -29,6 +29,9 @@ const canvasPoster = {
                     case 'image':
                         this.imagePaint(item)
                         break
+                    case 'line':
+                        this.linePaint(item)
+                        break
                 }
             })
         } else {
@@ -39,12 +42,9 @@ const canvasPoster = {
     // 文字 - 绘图
     textPaint: function (paint) {
         this.ctx.save()
-        this.ctx.fillStyle = paint.color ? paint.color : '#000'
+        this.ctx.fillStyle = paint.color
         this.ctx.font = paint.font
         this.ctx.textAlign = paint.textAlign
-        let position = paint.position ? paint.position : [0, 0]
-
-        // this.ctx.fillText(paint.content, position[0], position[1], paint.maxWidth)
         this.textWrap(paint)
         paint.textDecoration && this.underlinePaint(paint)
         this.ctx.restore()
@@ -52,7 +52,41 @@ const canvasPoster = {
 
     // 图片 - 绘图
     imagePaint: function (paint) {
+        let _this = this
 
+        if (!paint.src) {
+            new Error('image src cannot be empty')
+            return
+        }
+        if (typeof paint.src === 'string') {
+            let img = new Image()
+            img.onload = function () {
+                _this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
+            }
+            img.src = paint.src
+        } else {
+            let img = paint.src
+            console.log(img)
+            this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
+        }
+
+    },
+
+    // 线条
+    linePaint(paint) {
+        this.ctx.save()
+        this.ctx.fillStyle = paint.color
+        this.ctx.strokeStyle = paint.color
+        this.ctx.lineWidth = Number(paint.lineWidth)
+        this.ctx.lineCap = paint.lineCap
+        if (paint.lineType === 'dash') {
+            this.ctx.setLineDash([5, 5])
+        }
+        this.ctx.beginPath()
+        this.ctx.moveTo(paint.start[0], paint.start[1])
+        this.ctx.lineTo(paint.end[0], paint.end[1])
+        this.ctx.stroke()
+        this.ctx.restore()
     },
 
     // 下划线
@@ -159,7 +193,7 @@ const canvasPoster = {
     // 文本 - 换行
     textWrap(paint) {
         let textSize = this.textMetries(paint)
-        let maxWidth = paint.maxWidth
+        let maxWidth = paint.maxWidth * 1
         let row = paint.row ? (paint.row * 1) : 1
 
         if (paint.textAlign === 'left' || paint.textAlign == 'undefined') {
@@ -190,11 +224,10 @@ const canvasPoster = {
             for (let i = 0; i < length; i++) {
                 text += paint.content[i]
                 let tw = this.ctx.measureText(text).width
-                if (i === 0 && paint.textIndent && Number(paint.textIndent) > 0) {
-                    console.log('text-indent', paint.textIndent)
-                    tw += paint.textIndent
+                if (rowText.length === 0 && paint.textIndent && Number(paint.textIndent) > 0) {
+                    tw += Number(paint.textIndent)
                 }
-                
+
                 if (tw >= maxWidth) {
                     rowText.push(text)
                     text = ''
@@ -207,15 +240,19 @@ const canvasPoster = {
                 rowText.push(surplus)
             }
 
-            console.log('截取文字数组', rowText)
-
             rowText.length = rowText.length < row ? rowText.length : row
 
             rowText.forEach((item, index) => {
+                let formatText = item
+                // && this.textMetries(rowText.length -1).width >= maxWidth
+                if (paint.overflow && paint.overflow === 'ellipsis' && index === rowText.length - 1) {
+                    formatText = formatText.slice(0, formatText.length - 1) + '...'
+                }
                 if (paint.textIndent && Number(paint.textIndent) > 0 && index == 0) {
-                    this.ctx.fillText(item, paint.position[0] + Number(paint.textIndent), paint.position[1] + index * textSize.height)
+                    this.ctx.fillText(formatText, paint.position[0] + Number(paint.textIndent), paint.position[1] + index * textSize.height)
                 } else {
-                    this.ctx.fillText(item, paint.position[0], paint.position[1] + index * textSize.height)
+                    console.log(paint.position[0])
+                    this.ctx.fillText(formatText, paint.position[0], paint.position[1] + index * textSize.height)
                 }
             })
         }
