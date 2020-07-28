@@ -46,7 +46,8 @@ const canvasPoster = {
         this.ctx.textAlign = paint.textAlign
         let position = paint.position ? paint.position : [0, 0]
 
-        this.ctx.fillText(paint.content, position[0], position[1], paint.maxWidth)
+        // this.ctx.fillText(paint.content, position[0], position[1], paint.maxWidth)
+        this.textWrap(paint)
         paint.textDecoration && this.underlinePaint(paint)
         this.ctx.restore()
     },
@@ -61,16 +62,40 @@ const canvasPoster = {
         this.ctx.save()
         let textSize = this.textMetries(paint)
         let offset = 3
-        console.log(textSize)
-
         this.ctx.beginPath()
+        let textAlign = paint.textAlign || 'left'
+        let lineMoveTo = []
+        let linePosition = []
+        
+        switch (textAlign) {
+            case 'left':
+                lineMoveTo[0] = paint.position[0]
+                linePosition[0] = paint.position[0] + textSize.width
+                break
+            case 'center': 
+                lineMoveTo[0] = paint.position[0] + textSize.width / 2
+                linePosition[0] = paint.position[0] - textSize.width / 2
+                break
+            case 'right':
+                lineMoveTo[0] = paint.position[0] - textSize.width
+                linePosition[0] = paint.position[0]
+                break
+        }
 
         switch (paint.textDecoration) {
             case 'line-through':
-                this.ctx.moveTo(paint.position[0], paint.position[1] - (textSize.height / 2) + offset)
-                this.ctx.lineTo(paint.position[0] + textSize.width, paint.position[1] - (textSize.height / 2) + offset)
+                lineMoveTo[1] = linePosition[1] = paint.position[1] - (textSize.height / 2) + offset
                 break
+            case 'underline':
+                lineMoveTo[1] = linePosition[1] = paint.position[1]
+                break
+            case 'overline':
+                lineMoveTo[1] = linePosition[1] = paint.position[1] - textSize.height + offset
+                
         }
+
+        this.ctx.moveTo(lineMoveTo[0], lineMoveTo[1])
+        this.ctx.lineTo(linePosition[0], linePosition[1])
 
         this.ctx.strokeStyle = paint.color
         this.ctx.stroke()
@@ -110,6 +135,7 @@ const canvasPoster = {
         this.ctx.fillText(num, position[0], position[1])
     },
 
+    // 文本 - 宽高计算
     textMetries(paint) {
         let tm = this.ctx.measureText(paint.content),
             w = tm.width,
@@ -127,5 +153,15 @@ const canvasPoster = {
             width: w,
             height: h
         }
+    },
+
+    // 文本 - 换行
+    textWrap(paint) {
+        let textWidth = this.textMetries(paint.content).width
+        let maxWidth = paint.maxWidth 
+        if (paint.textAlign === 'left' || paint.textAlign == 'undefined') {
+            maxWidth = maxWidth ? maxWidth : paint.position[0] + textWidth
+        }
+        console.log(textWidth)
     }
 }
