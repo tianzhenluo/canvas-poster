@@ -20,7 +20,6 @@ const canvasPoster = {
     },
 
     painting: function (paint) {
-        console.log(paint)
         if (paint instanceof Array) {
             paint.forEach(item => {
                 switch (item.type) {
@@ -30,7 +29,6 @@ const canvasPoster = {
                     case 'image':
                         this.imagePaint(item)
                         break
-
                 }
             })
         } else {
@@ -66,13 +64,13 @@ const canvasPoster = {
         let textAlign = paint.textAlign || 'left'
         let lineMoveTo = []
         let linePosition = []
-        
+
         switch (textAlign) {
             case 'left':
                 lineMoveTo[0] = paint.position[0]
                 linePosition[0] = paint.position[0] + textSize.width
                 break
-            case 'center': 
+            case 'center':
                 lineMoveTo[0] = paint.position[0] + textSize.width / 2
                 linePosition[0] = paint.position[0] - textSize.width / 2
                 break
@@ -91,7 +89,7 @@ const canvasPoster = {
                 break
             case 'overline':
                 lineMoveTo[1] = linePosition[1] = paint.position[1] - textSize.height + offset
-                
+
         }
 
         this.ctx.moveTo(lineMoveTo[0], lineMoveTo[1])
@@ -142,13 +140,16 @@ const canvasPoster = {
             h, el
         if (typeof tm.fontBoundingBoxAscent == 'undefined') {
             el = document.createElement('div')
-            el.style.cssText = `position: fixed;font: ${paint.font};padding: 0;margin: 0;left: -9999px;top: -999px`
+            el.style.cssText = `position: fixed;font: ${paint.font};padding: 0;margin: 0;left: -9999px;top: -9999px`
             el.innerHTML = paint.content
             document.body.appendChild(el)
             h = parseInt(window.getComputedStyle(el).getPropertyValue('height'))
         } else {
             h = tm.fontBoundingBoxAscent + tm.fontBoundingBoxDescent
         }
+
+        // document.body.removeChild(el)
+
         return {
             width: w,
             height: h
@@ -157,11 +158,66 @@ const canvasPoster = {
 
     // 文本 - 换行
     textWrap(paint) {
-        let textWidth = this.textMetries(paint.content).width
-        let maxWidth = paint.maxWidth 
+        let textSize = this.textMetries(paint)
+        let maxWidth = paint.maxWidth
+        let row = paint.row ? (paint.row * 1) : 1
+
         if (paint.textAlign === 'left' || paint.textAlign == 'undefined') {
-            maxWidth = maxWidth ? maxWidth : paint.position[0] + textWidth
+            maxWidth = maxWidth ? maxWidth : this.width - paint.position[0]
+        } else if (paint.textAlign === 'center') {
+            maxWidth = maxWidth ? maxWidth : this.width
+        } else if (paint.textAlign === 'right') {
+            maxWidth = maxWidth ? maxWidth : paint.position[0]
         }
-        console.log(textWidth)
+
+        console.log({
+            '文本': paint.content,
+            '文本宽': textSize.width,
+            '最大宽度': maxWidth
+        })
+
+        // 一行显示完全
+        if (row === 1 && textSize.width <= maxWidth) {
+            this.ctx.fillText(paint.content, paint.position[0], paint.position[1], maxWidth)
+            this.ctx.stroke()
+        } else {
+            // 换行或裁剪
+            let length = paint.content.length
+            let rowText = []
+            let text = ''
+            let sliceEndSub = 0
+
+            for (let i = 0; i < length; i++) {
+                text += paint.content[i]
+                let tw = this.ctx.measureText(text).width
+                if (i === 0 && paint.textIndent && Number(paint.textIndent) > 0) {
+                    console.log('text-indent', paint.textIndent)
+                    tw += paint.textIndent
+                }
+                
+                if (tw >= maxWidth) {
+                    rowText.push(text)
+                    text = ''
+                    sliceEndSub = i + 1
+                }
+            }
+
+            if (sliceEndSub < length) {
+                let surplus = paint.content.slice(-(length - sliceEndSub))
+                rowText.push(surplus)
+            }
+
+            console.log('截取文字数组', rowText)
+
+            rowText.length = rowText.length < row ? rowText.length : row
+
+            rowText.forEach((item, index) => {
+                if (paint.textIndent && Number(paint.textIndent) > 0 && index == 0) {
+                    this.ctx.fillText(item, paint.position[0] + Number(paint.textIndent), paint.position[1] + index * textSize.height)
+                } else {
+                    this.ctx.fillText(item, paint.position[0], paint.position[1] + index * textSize.height)
+                }
+            })
+        }
     }
 }
