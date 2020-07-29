@@ -42,22 +42,43 @@ const canvasPoster = {
     // 文字 - 绘图
     textPaint: function (paint) {
         this.ctx.save()
-        this.ctx.fillStyle = paint.color
+        
         this.ctx.font = paint.font
         this.ctx.textAlign = paint.textAlign
+        // this.ctx.textBaseline = paint.textBaseline
         this.textWrap(paint)
-        paint.textDecoration && this.underlinePaint(paint)
+        // paint.textDecoration && this.underlinePaint(paint)
         this.ctx.restore()
     },
 
     // 图片 - 绘图
     imagePaint: function (paint) {
         let _this = this
-
         if (!paint.src) {
             new Error('image src cannot be empty')
             return
         }
+        // 圆形
+        if (paint.round) {
+            this.ctx.save()
+            let img = new Image()
+            let _this = this
+            img.onload = function() {
+                let radius = 0
+                if (paint.width === paint.height) {
+                    radius = paint.width / 2
+                } else {
+                    radius = paint.width > paint.height ? paint.height / 2 : paint.width / 2
+                }
+                _this.ctx.arc(Number(paint.position[0]) + radius, Number(paint.position[1]) + radius, radius, 0, Math.PI * 2, true)
+                _this.ctx.clip()
+                _this.ctx.drawImage(img, paint.position[0], paint.position[1], radius * 2, radius * 2)
+            }
+            img.src = paint.src
+            this.ctx.restore()
+            return
+        }
+
         if (typeof paint.src === 'string') {
             let img = new Image()
             img.onload = function () {
@@ -66,10 +87,8 @@ const canvasPoster = {
             img.src = paint.src
         } else {
             let img = paint.src
-            console.log(img)
             this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
         }
-
     },
 
     // 线条
@@ -123,7 +142,7 @@ const canvasPoster = {
                 break
             case 'overline':
                 lineMoveTo[1] = linePosition[1] = paint.position[1] - textSize.height + offset
-
+                break
         }
 
         this.ctx.moveTo(lineMoveTo[0], lineMoveTo[1])
@@ -134,6 +153,12 @@ const canvasPoster = {
         this.ctx.restore()
     },
 
+    // 计算文本画下划线删除线上划线，文本背景色，一行或多行文本
+    computedTextArea() {
+
+    },
+
+    // canvas 辅助线
     guideline: function () {
         this.ctx.save()
         this.ctx.lineWidth = 1
@@ -204,16 +229,25 @@ const canvasPoster = {
             maxWidth = maxWidth ? maxWidth : paint.position[0]
         }
 
-        console.log({
-            '文本': paint.content,
-            '文本宽': textSize.width,
-            '最大宽度': maxWidth
-        })
+        // console.log({
+        //     '文本': paint.content,
+        //     '文本宽': textSize.width,
+        //     '最大宽度': maxWidth
+        // })
+
+        this.ctx.save()
+        this.ctx.fillStyle = paint.color
 
         // 一行显示完全
         if (row === 1 && textSize.width <= maxWidth) {
             this.ctx.fillText(paint.content, paint.position[0], paint.position[1], maxWidth)
             this.ctx.stroke()
+            if (paint.background) {
+                this.ctx.save()
+                this.ctx.fillStyle = paint.background
+                this.ctx.fillRect(paint.position[0], paint.position[1], maxWidth, textSize.height)
+                this.ctx.restore()
+            }
         } else {
             // 换行或裁剪
             let length = paint.content.length
@@ -251,10 +285,13 @@ const canvasPoster = {
                 if (paint.textIndent && Number(paint.textIndent) > 0 && index == 0) {
                     this.ctx.fillText(formatText, paint.position[0] + Number(paint.textIndent), paint.position[1] + index * textSize.height)
                 } else {
-                    console.log(paint.position[0])
                     this.ctx.fillText(formatText, paint.position[0], paint.position[1] + index * textSize.height)
                 }
             })
         }
+
+        this.ctx.restore()
+
+        
     }
 }

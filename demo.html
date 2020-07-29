@@ -27,7 +27,7 @@
 
 <body>
 
-    <canvas id="draw" width="300" height="400"></canvas>
+    <canvas id="draw" width="300" height="600"></canvas>
 
     <a id="save">保存</a>
 
@@ -40,17 +40,19 @@
         
         canvasPoster.init('#draw', {
             width: 300,
-            height: 500,
+            height: 600,
             guidelinesSpace: 20,
             guidelines: true
         }).painting([
             {
                 type: 'text',
-                content: 'hello World!',
+                content: '中国hello World!',
                 position: [160, 40],
                 font: '18px 黑体',
                 textAlign: 'center', // left center right
                 color: '#f0f',
+                // background: '#eee',
+                // textBaseline: 'alphabetic', // 基线对齐 top, hanging, middle, alphabetic, ideographic, bottom
                 textDecoration: 'line-through' // overline underline line-through
             }, {
                 type: 'text',
@@ -63,20 +65,21 @@
                 row: 4, // 显示行数，默认 1 行
                 overflow: 'ellipsis', // clip 直接裁剪，ellipsis 文本溢出显示省略...
                 // textIndent: '40' // 首行缩进 px
+                textDecoration: 'line-through'
             }, {
                 type: 'image',
                 src: './dog.png',
                 position: [140, 160],
-                width: '100',
-                height: '120'
+                width: 100,
+                height: 120
             }, {
                 type: 'line',
-                lineWidth: 4,
+                lineWidth: 2,
                 start: [210, 60],
                 end: [214, 140],
                 color: '#f88',
                 lineCap: 'round', // 默认butt；round; square
-                lineType: '' // dash, solid
+                lineType: 'dash' // dash, solid
             }, {
                 type: 'line',
                 lineWidth: 8,
@@ -85,7 +88,12 @@
                 color: 'blue',
                 lineCap: '',
             }, {
-                
+                type: 'image',
+                src: './timg.jpeg',
+                position: [40, 160],
+                width: 40,
+                height: 80,
+                round: true // 切割成圆形，如果是长方形的，会以短边切割
             }
         ])
         
