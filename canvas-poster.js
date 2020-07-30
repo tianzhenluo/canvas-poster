@@ -5,6 +5,7 @@ const canvasPoster = {
     height: 500,
     guidelineSpace: 20,
     guidelines: true,
+    roundClipImage: [],
 
     init: function (el, params) {
         this.canvas = document.querySelector(el)
@@ -25,7 +26,11 @@ const canvasPoster = {
                         this.textPaint(item)
                         break
                     case 'image':
-                        this.imagePaint(item)
+                        if (item.round) {
+                            this.roundClipImage.push(item)
+                        } else {
+                            this.imagePaint(item)
+                        }
                         break
                     case 'line':
                         this.linePaint(item)
@@ -38,6 +43,16 @@ const canvasPoster = {
                         break
                 }
             })
+
+            // 裁剪圆型img.onload 方法为异步操作，clip() 裁剪后，restore() 没有第一时间清除所以会出现绘图错乱，所以只能 one by one
+            if (this.roundClipImage.length != 0) {
+                let i = 0
+                this.imagePaint(this.roundClipImage[i], () => {
+                    if (++i < this.roundClipImage.length) {
+                        this.imagePaint(this.roundClipImage[i])
+                    }
+                })
+            }
         } else {
             new Error('painting must be Array')
         }
@@ -53,7 +68,7 @@ const canvasPoster = {
     },
 
     // 图片 - 绘图
-    imagePaint: function (paint) {
+    imagePaint: function (paint, fn) {
         let _this = this
         if (!paint.src) {
             new Error('image src cannot be empty')
@@ -64,7 +79,6 @@ const canvasPoster = {
             let img = new Image()
             let _this = this
             img.onload = function() {
-                
                 let radius = 0
                 if (paint.width === paint.height) {
                     radius = paint.width / 2
@@ -73,14 +87,12 @@ const canvasPoster = {
                 }
                 _this.ctx.save()
                 _this.ctx.arc(Number(paint.position[0]) + radius, Number(paint.position[1]) + radius, radius, 0, Math.PI * 2, true)
-                
                 _this.ctx.clip()
-                
                 _this.ctx.drawImage(img, paint.position[0], paint.position[1], radius * 2, radius * 2)
                 _this.ctx.restore()
+                typeof fn == 'function' && fn()
             }
             img.src = paint.src
-            
             return
         }
 
