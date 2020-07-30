@@ -11,11 +11,9 @@ const canvasPoster = {
         this.ctx = this.canvas.getContext('2d')
         this.width = params.width
         this.height = params.height
-        this.guidelineSpace = params.guidelinesSpace
-        this.guidelines = params.guidelines
-
+        this.guidelineSpace = params.guidelineSpace == undefined ? this.guidelineSpace : params.guidelineSpace
+        this.guidelines = params.guidelines || this.guidelines
         this.guidelines && this.guideline()
-
         return this
     },
 
@@ -32,6 +30,12 @@ const canvasPoster = {
                     case 'line':
                         this.linePaint(item)
                         break
+                    case 'rect':
+                        this.rectPaint(item)
+                        break
+                    case 'arc':
+                        this.arcPaint(item)
+                        break
                 }
             })
         } else {
@@ -42,12 +46,9 @@ const canvasPoster = {
     // 文字 - 绘图
     textPaint: function (paint) {
         this.ctx.save()
-        
         this.ctx.font = paint.font
         this.ctx.textAlign = paint.textAlign
-        // this.ctx.textBaseline = paint.textBaseline
         this.textWrap(paint)
-        // paint.textDecoration && this.underlinePaint(paint)
         this.ctx.restore()
     },
 
@@ -60,32 +61,38 @@ const canvasPoster = {
         }
         // 圆形
         if (paint.round) {
-            this.ctx.save()
             let img = new Image()
             let _this = this
             img.onload = function() {
+                
                 let radius = 0
                 if (paint.width === paint.height) {
                     radius = paint.width / 2
                 } else {
                     radius = paint.width > paint.height ? paint.height / 2 : paint.width / 2
                 }
+                _this.ctx.save()
                 _this.ctx.arc(Number(paint.position[0]) + radius, Number(paint.position[1]) + radius, radius, 0, Math.PI * 2, true)
+                
                 _this.ctx.clip()
+                
                 _this.ctx.drawImage(img, paint.position[0], paint.position[1], radius * 2, radius * 2)
+                _this.ctx.restore()
             }
             img.src = paint.src
-            this.ctx.restore()
+            
             return
         }
 
         if (typeof paint.src === 'string') {
+            this.ctx.save()
             let img = new Image()
             img.onload = function () {
                 _this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
             }
             img.src = paint.src
         } else {
+            this.ctx.save()
             let img = paint.src
             this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
         }
@@ -105,6 +112,34 @@ const canvasPoster = {
         this.ctx.moveTo(paint.start[0], paint.start[1])
         this.ctx.lineTo(paint.end[0], paint.end[1])
         this.ctx.stroke()
+        this.ctx.restore()
+    },
+
+    // 矩形
+    rectPaint(paint) {
+        this.ctx.save()
+        this.ctx.fillStyle = paint.color
+        this.ctx.strokeStyle = paint.color
+        if (!paint.style || paint.style === 'stroke') {
+            this.ctx.strokeRect(paint.position[0], paint.position[1], paint.width, paint.height)
+        } else {
+            this.ctx.fillRect(paint.position[0], paint.position[1], paint.width, paint.height)
+        }
+        this.ctx.restore()
+    },
+
+    // 圆形
+    arcPaint(paint) {
+        this.ctx.save()
+        this.ctx.beginPath()
+        this.ctx.fillStyle = paint.color
+        this.ctx.strokeStyle = paint.color
+        this.ctx.arc(paint.position[0], paint.position[1], paint.radius, 0, Math.PI * 2, true)
+        if (!paint.style || paint.style === 'stroke') {
+            this.ctx.stroke()
+        } else {
+            this.ctx.fill()
+        }
         this.ctx.restore()
     },
 
@@ -162,7 +197,7 @@ const canvasPoster = {
     guideline: function () {
         this.ctx.save()
         this.ctx.lineWidth = 1
-        this.ctx.strokeStyle = 'rgba(11,11,11, 0.4)'
+        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
         let row = this.guidelineSpace
         let col = this.guidelineSpace
 
@@ -229,12 +264,6 @@ const canvasPoster = {
             maxWidth = maxWidth ? maxWidth : paint.position[0]
         }
 
-        // console.log({
-        //     '文本': paint.content,
-        //     '文本宽': textSize.width,
-        //     '最大宽度': maxWidth
-        // })
-
         this.ctx.save()
         this.ctx.fillStyle = paint.color
 
@@ -242,12 +271,6 @@ const canvasPoster = {
         if (row === 1 && textSize.width <= maxWidth) {
             this.ctx.fillText(paint.content, paint.position[0], paint.position[1], maxWidth)
             this.ctx.stroke()
-            if (paint.background) {
-                this.ctx.save()
-                this.ctx.fillStyle = paint.background
-                this.ctx.fillRect(paint.position[0], paint.position[1], maxWidth, textSize.height)
-                this.ctx.restore()
-            }
         } else {
             // 换行或裁剪
             let length = paint.content.length
@@ -278,7 +301,6 @@ const canvasPoster = {
 
             rowText.forEach((item, index) => {
                 let formatText = item
-                // && this.textMetries(rowText.length -1).width >= maxWidth
                 if (paint.overflow && paint.overflow === 'ellipsis' && index === rowText.length - 1) {
                     formatText = formatText.slice(0, formatText.length - 1) + '...'
                 }
@@ -291,7 +313,5 @@ const canvasPoster = {
         }
 
         this.ctx.restore()
-
-        
     }
 }

@@ -27,7 +27,7 @@
 
 <body>
 
-    <canvas id="draw" width="300" height="600"></canvas>
+    <canvas id="draw" width="375" height="600"></canvas>
 
     <a id="save">保存</a>
 
@@ -39,11 +39,11 @@
         let img = document.getElementsByTagName('img')[0]
         
         canvasPoster.init('#draw', {
-            width: 300,
-            height: 600,
-            guidelinesSpace: 20,
-            guidelines: true
-        }).painting([
+            width: 370,
+            height: 600
+        })
+
+        canvasPoster.painting([
             {
                 type: 'text',
                 content: '中国hello World!',
@@ -52,7 +52,6 @@
                 textAlign: 'center', // left center right
                 color: '#f0f',
                 // background: '#eee',
-                // textBaseline: 'alphabetic', // 基线对齐 top, hanging, middle, alphabetic, ideographic, bottom
                 textDecoration: 'line-through' // overline underline line-through
             }, {
                 type: 'text',
@@ -71,7 +70,8 @@
                 src: './dog.png',
                 position: [140, 160],
                 width: 100,
-                height: 120
+                height: 120,
+                round: true
             }, {
                 type: 'line',
                 lineWidth: 2,
@@ -94,6 +94,19 @@
                 width: 40,
                 height: 80,
                 round: true // 切割成圆形，如果是长方形的，会以短边切割
+            }, {
+                type: 'rect',
+                position: [40, 220],
+                width: 100,
+                height: 80,
+                color: '#f0f',  
+                style: 'stroke' // fill 填充，stroke 描边
+            }, {
+                type: 'arc',
+                position: [260, 380],
+                radius: 60,
+                color: 'yellow',
+                style: 'fill'   // fill 填充，stroke 描边
             }
         ])
         

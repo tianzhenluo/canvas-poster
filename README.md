@@ -5,9 +5,7 @@ canvas 画图辅助工具
 
     canvasPoster.init(el, {
         width: 300,
-        height: 500,
-        guidelinesSpace: 20,
-        guidelines: true
+        height: 500
     }).painting([
         {
             type: 'text',
@@ -62,3 +60,32 @@ canvas 画图辅助工具
 |color| yellow #fff rgb(0, 0, 0)|颜色
 |lineCap| 默认```butt``` round square |线条两端样式
 |lineType| dash 虚线 solid 实线 | 线条样式
+
+### 圆
+|type| - | ```arc```|
+|---|---|---
+|position| [x, y] | 圆心位置
+|radius| Number | 半径
+|color| yellow #fff rgb(0, 0, 0) | 颜色
+|style| fill, stroke| 填充或描边
+
+### 矩形
+|type| - | ```rect```|
+|---|---|---
+|position| [x, y] | 矩形左上角位置
+|width| Number | 宽
+|height| Number | 高
+|color| yellow #fff rgb(0, 0, 0) | 颜色
+|style| fill, stroke | 填充或描边
+
+----
+
+#### 计划
+
+- [ ] 多行文本划线
+- [ ] 单行文本及多行文本背景色
+- [x] 画圆
+- [x] 画矩形
+- [ ] 多个圆图，切割出现内分泌紊乱
+
+----
