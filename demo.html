@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>canvas-poster demo</title>
     <style>
         body {
             margin: 0;
@@ -14,33 +14,23 @@
             display: block;
             margin: 50px auto;
         }
-        #save {
-            line-height: 30px;
-            font-size: 14px;
-            margin: 50px auto;
-            background: #fff;
-            /* border: 1px solid #ddd; */
-            text-align: center;
-        }
     </style>
 </head>
 
 <body>
-
     <canvas id="draw" width="375" height="600"></canvas>
 
     <a id="save">保存</a>
-
-    <img src="./dog.png" alt="">
+    
     <script src="./canvas-poster.js"></script>
-
     <script>
 
         let img = document.getElementsByTagName('img')[0]
         
         canvasPoster.init('#draw', {
             width: 370,
-            height: 600
+            height: 600,
+            scale: 1
         })
 
         canvasPoster.painting([
@@ -50,8 +40,8 @@
                 position: [160, 40],
                 font: '18px 黑体',
                 textAlign: 'center', // left center right
-                color: '#f0f',
-                // background: '#eee',
+                color: '#0ff',
+                background: 'rgba(0,0,0,0.3)',
                 textDecoration: 'line-through' // overline underline line-through
             }, {
                 type: 'text',
@@ -59,12 +49,13 @@
                 position: [40, 80],
                 font: '16px 黑体',
                 textAlign: 'left',
-                color: '#f00',
+                color: '#000',
                 maxWidth: '120',
                 row: 4, // 显示行数，默认 1 行
                 overflow: 'ellipsis', // clip 直接裁剪，ellipsis 文本溢出显示省略...
-                // textIndent: '40' // 首行缩进 px
-                // textDecoration: 'line-through'
+                textIndent: '32', // 首行缩进 px
+                textDecoration: 'line-through',
+                background: 'rgba(0,0,0,0.3)'
             }, {
                 type: 'image',
                 src: './dog.png',
@@ -80,12 +71,12 @@
                 lineCap: 'round', // 默认butt；round; square
                 lineType: 'dash' // dash, solid
             }, {
-                type: 'line',
-                lineWidth: 8,
-                start: [230, 60],
-                end: [200, 140],
-                color: 'blue',
-                lineCap: '',
+                // type: 'line',
+                // lineWidth: 8,
+                // start: [230, 60],
+                // end: [200, 140],
+                // color: 'blue',
+                // lineCap: '',
             }, {
                 type: 'image',
                 src: './timg.jpeg',

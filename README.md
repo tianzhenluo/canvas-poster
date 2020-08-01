@@ -3,6 +3,39 @@ canvas 画图辅助工具
 
 ### use
 
+获取到 `canvas-poster.js` 插件
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>canvas-poster demo</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            display: block;
+            margin: 50px auto;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="375" height="600"></canvas>
+
+    <script src="./canvas-poster.js"></script>
+</body>
+
+</html>
+
+```
+
 ```javascript
     // 初始化canvas 画布
     let canvas = document.querySelector('#canvas')
@@ -32,6 +65,8 @@ canvas 画图辅助工具
 
 > 注：画布内所有的宽高，字体大小，单位都为px。所以如果你是在移动端使用，在给相应属性赋值时自行转换设计稿大小，在下就省了个事了
 
+
+
 ### 文本
 
 | type | - |```text``` |
@@ -39,23 +74,42 @@ canvas 画图辅助工具
 |content| - | 文本内容
 |position|[x, y] Number 类型|文本位置
 |font|'16px sans-serif'|同css属性值
-|color|yellow #fff rgb(0, 0, 0)|文本颜色
+|color|yellow； #fff； rgb(0, 0, 0)；rgba(0, 0, 0, 0.5)|文本颜色
 |textAlign|left center right|对齐方式
 |textDecoration|overline line-through underline|文字划线
 |maxWidth| Number | 文本宽度
 |row| Number | 显示行数 
 |overflow| clip 裁剪 ellipsis 文本溢出显示省略号|超出展示
 |textIndent|Number|首行缩进
+|background|yellow； #fff； rgb(0, 0, 0)；rgba(0, 0, 0, 0.5)|背景色
+
+---
 
 ### 图片
 
 |type| - | ```image``` |
 |---|---|---
-|src| - | 图片地址
+|src| 本地图片；页面中的img标签节点；base64图片 | 图片地址
 |position|[x, y]|图片位置
 |width|Number|宽度
 |height|Number|高度
-|round| ```true``` or ```false```|是否剪切成圆形；头像之类
+|round| ```true``` or ```false```|是否剪切成圆形
+
+> ```src``` 使用页面中的img标签节点；当然最好使用地址
+```javascript
+    let img = document.querySelector('img')[0]
+
+    ...(省略)
+    canvasPoster.painting([
+        {
+            type: 'image',
+            src: img, // 获取到页面中的img节点，赋给src
+            width: ...
+            height: ...
+        }
+    ])
+```
+---
 
 ### 线条
 
@@ -64,17 +118,21 @@ canvas 画图辅助工具
 |lineWidth|Number|线条宽度
 |start|[x, y]|起始坐标
 |end|[x, y]|结束坐标
-|color| yellow #fff rgb(0, 0, 0)|颜色
+|color|yellow； #fff； rgb(0, 0, 0)；rgba(0, 0, 0, 0.5)|颜色
 |lineCap| 默认```butt``` round square |线条两端样式
 |lineType| dash 虚线 solid 实线 | 线条样式
+
+---
 
 ### 圆
 |type| - | ```arc```|
 |---|---|---
 |position| [x, y] | 圆心位置
 |radius| Number | 半径
-|color| yellow #fff rgb(0, 0, 0) | 颜色
-|style| fill, stroke| 填充或描边
+|color| yellow； #fff； rgb(0, 0, 0)；rgba(0, 0, 0, 0.5) | 颜色
+|style| fill, stroke| 填充 或 描边
+
+---
 
 ### 矩形
 |type| - | ```rect```|
@@ -82,17 +140,8 @@ canvas 画图辅助工具
 |position| [x, y] | 矩形左上角位置
 |width| Number | 宽
 |height| Number | 高
-|color| yellow #fff rgb(0, 0, 0) | 颜色
-|style| fill, stroke | 填充或描边
+|color| yellow； #fff； rgb(0, 0, 0)；rgba(0, 0, 0, 0.5) | 颜色
+|style| fill, stroke | 填充 或 描边
 
 ----
 
-#### 计划
-
-- [ ] 多行文本划线
-- [ ] 单行文本及多行文本背景色
-- [x] 画圆
-- [x] 画矩形
-- [x] 多个圆图，切割出现内分泌紊乱
-
-----

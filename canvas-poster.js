@@ -6,6 +6,7 @@ const canvasPoster = {
     guidelineSpace: 20,
     guidelines: true,
     roundClipImage: [],
+    scale: 1,
 
     init: function (el, params) {
         this.canvas = document.querySelector(el)
@@ -15,6 +16,10 @@ const canvasPoster = {
         this.guidelineSpace = params.guidelineSpace == undefined ? this.guidelineSpace : params.guidelineSpace
         this.guidelines = params.guidelines || this.guidelines
         this.guidelines && this.guideline()
+
+        let scale = params.scale || this.scale
+        this.ctx.scale(scale, scale)
+
         return this
     },
 
@@ -155,8 +160,9 @@ const canvasPoster = {
         this.ctx.restore()
     },
 
-    // 下划线
-    underlinePaint: function (paint) {
+    // 计算文本画下划线删除线上划线，文本背景色，一行或多行文本
+    // 目前只能根据textBaseline alphabetic 默认值来计算
+    computedTextArea: function (paint, subscript) {
         this.ctx.save()
         let textSize = this.textMetries(paint)
         let offset = 3
@@ -164,6 +170,7 @@ const canvasPoster = {
         let textAlign = paint.textAlign || 'left'
         let lineMoveTo = []
         let linePosition = []
+        let backgroundPosition = []
 
         switch (textAlign) {
             case 'left':
@@ -171,8 +178,8 @@ const canvasPoster = {
                 linePosition[0] = paint.position[0] + textSize.width
                 break
             case 'center':
-                lineMoveTo[0] = paint.position[0] + textSize.width / 2
-                linePosition[0] = paint.position[0] - textSize.width / 2
+                linePosition[0] = paint.position[0] + textSize.width / 2
+                lineMoveTo[0] = paint.position[0] - textSize.width / 2
                 break
             case 'right':
                 lineMoveTo[0] = paint.position[0] - textSize.width
@@ -192,18 +199,36 @@ const canvasPoster = {
                 break
         }
 
-        this.ctx.moveTo(lineMoveTo[0], lineMoveTo[1])
-        this.ctx.lineTo(linePosition[0], linePosition[1])
+        if (subscript != undefined && subscript === 0) {
+            lineMoveTo[0] += Number(paint.textIndent ? paint.textIndent : 0)
+            linePosition[0] += Number(paint.textIndent ? paint.textIndent : 0)
+        }
 
-        this.ctx.strokeStyle = paint.color
-        this.ctx.stroke()
-        this.ctx.restore()
+        console.log(paint.content, lineMoveTo[0])
+
+        backgroundPosition[0] = lineMoveTo[0]
+        backgroundPosition[1] = paint.position[1] - textSize.height + offset
+
+        // 划线
+        if (paint.textDecoration) {
+            this.ctx.save()
+            this.ctx.moveTo(lineMoveTo[0], lineMoveTo[1])
+            this.ctx.lineTo(linePosition[0], linePosition[1])
+            this.ctx.strokeStyle = paint.color
+            this.ctx.stroke()
+            this.ctx.restore()
+        }
+
+        // 背景色
+        if (paint.background) {
+            this.ctx.save()
+            this.ctx.fillStyle = paint.background
+            this.ctx.fillRect(backgroundPosition[0], backgroundPosition[1], textSize.width, textSize.height)
+            this.ctx.restore()
+        }
     },
 
-    // 计算文本画下划线删除线上划线，文本背景色，一行或多行文本
-    computedTextArea() {
-
-    },
+    
 
     // canvas 辅助线
     guideline: function () {
@@ -253,16 +278,14 @@ const canvasPoster = {
         } else {
             h = tm.fontBoundingBoxAscent + tm.fontBoundingBoxDescent
         }
-
-        // document.body.removeChild(el)
-
+        document.body.removeChild(el)
         return {
             width: w,
             height: h
         }
     },
 
-    // 文本 - 换行
+    // 文本 - 单行或多行
     textWrap(paint) {
         let textSize = this.textMetries(paint)
         let maxWidth = paint.maxWidth * 1
@@ -281,8 +304,8 @@ const canvasPoster = {
 
         // 一行显示完全
         if (row === 1 && textSize.width <= maxWidth) {
+            this.computedTextArea(paint)
             this.ctx.fillText(paint.content, paint.position[0], paint.position[1], maxWidth)
-            this.ctx.stroke()
         } else {
             // 换行或裁剪
             let length = paint.content.length
@@ -314,16 +337,27 @@ const canvasPoster = {
             rowText.forEach((item, index) => {
                 let formatText = item
                 if (paint.overflow && paint.overflow === 'ellipsis' && index === rowText.length - 1) {
-                    formatText = formatText.slice(0, formatText.length - 1) + '...'
+                    formatText = formatText.slice(0, formatText.length - 2) + '...'
                 }
                 if (paint.textIndent && Number(paint.textIndent) > 0 && index == 0) {
                     this.ctx.fillText(formatText, paint.position[0] + Number(paint.textIndent), paint.position[1] + index * textSize.height)
                 } else {
                     this.ctx.fillText(formatText, paint.position[0], paint.position[1] + index * textSize.height)
                 }
+
+                // 多行文本画下划线
+                let copyPaint = JSON.parse(JSON.stringify(paint))
+                copyPaint.position[1] = paint.position[1] + index * textSize.height
+                copyPaint.content = formatText
+                this.computedTextArea(copyPaint, index)
             })
         }
 
         this.ctx.restore()
+    },
+
+    // 生成图片
+    toDataURL() {
+
     }
 }
