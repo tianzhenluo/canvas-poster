@@ -18,7 +18,7 @@
 </head>
 
 <body>
-    <canvas id="draw" width="375" height="600"></canvas>
+    <canvas id="draw"></canvas>
 
     <a id="save">保存</a>
     
@@ -28,75 +28,18 @@
         let img = document.getElementsByTagName('img')[0]
         
         canvasPoster.init('#draw', {
-            width: 370,
-            height: 600,
-            scale: 1
+            width: 375,
+            height: 600
         })
 
         canvasPoster.painting([
             {
-                type: 'text',
-                content: '中国hello World!',
-                position: [160, 40],
-                font: '18px 黑体',
-                textAlign: 'center', // left center right
-                color: '#0ff',
-                background: 'rgba(0,0,0,0.3)',
-                textDecoration: 'line-through' // overline underline line-through
-            }, {
-                type: 'text',
-                content: '抱歉，当前未能成功查询到该笔订单的物流信息，请稍后再尝试。',
-                position: [40, 80],
-                font: '16px 黑体',
-                textAlign: 'left',
-                color: '#000',
-                maxWidth: '120',
-                row: 4, // 显示行数，默认 1 行
-                overflow: 'ellipsis', // clip 直接裁剪，ellipsis 文本溢出显示省略...
-                textIndent: '32', // 首行缩进 px
-                textDecoration: 'line-through',
-                background: 'rgba(0,0,0,0.3)'
-            }, {
-                type: 'image',
-                src: './dog.png',
-                position: [140, 160],
-                width: 100,
-                height: 120
-            }, {
-                type: 'line',
-                lineWidth: 2,
-                start: [210, 60],
-                end: [214, 140],
-                color: '#f88',
-                lineCap: 'round', // 默认butt；round; square
-                lineType: 'dash' // dash, solid
-            }, {
-                // type: 'line',
-                // lineWidth: 8,
-                // start: [230, 60],
-                // end: [200, 140],
-                // color: 'blue',
-                // lineCap: '',
-            }, {
-                type: 'image',
-                src: './timg.jpeg',
-                position: [40, 160],
-                width: 40,
-                height: 80,
-                round: true // 切割成圆形，如果是长方形的，会以短边切割
-            }, {
                 type: 'rect',
                 position: [40, 220],
                 width: 100,
                 height: 80,
                 color: '#f0f',  
                 style: 'stroke' // fill 填充，stroke 描边
-            }, {
-                type: 'arc',
-                position: [260, 380],
-                radius: 60,
-                color: 'yellow',
-                style: 'fill'   // fill 填充，stroke 描边
             }
         ])
         

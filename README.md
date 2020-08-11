@@ -63,13 +63,23 @@ canvas 画图辅助工具
 
 ```
 
-> 注：画布内所有的宽高，字体大小，单位都为px。所以如果你是在移动端使用，在给相应属性赋值时自行转换设计稿大小，在下就省了个事了
+### 初始化配置
+|`init()`| 取值 | 初始化方法|
+|---|---|---
+|width| Number | 画布宽度
+|height| Number | 画布高度
+|guidelines| Boolean | 是否开启辅助线。默认`true`
+|guidelineSpace| Number | 辅助线间隔，横线纵向一致，默认20 (单位px)
 
+---
 
+|`painting(options)` | - | 画图方法
+|---|---|---
+|options| Array | 画布元素（text, image, line, art）
 
 ### 文本
 
-| type | - |```text``` |
+| type | 取值 |```text``` |
 |---|---|---
 |content| - | 文本内容
 |position|[x, y] Number 类型|文本位置
@@ -87,7 +97,7 @@ canvas 画图辅助工具
 
 ### 图片
 
-|type| - | ```image``` |
+|type| 取值 | ```image``` |
 |---|---|---
 |src| 本地图片；页面中的img标签节点；base64图片 | 图片地址
 |position|[x, y]|图片位置
@@ -113,7 +123,7 @@ canvas 画图辅助工具
 
 ### 线条
 
-|type| - | ```line```|
+|type| 取值 | ```line```|
 |---|---|---
 |lineWidth|Number|线条宽度
 |start|[x, y]|起始坐标
@@ -125,7 +135,7 @@ canvas 画图辅助工具
 ---
 
 ### 圆
-|type| - | ```arc```|
+|type| 取值 | ```arc```|
 |---|---|---
 |position| [x, y] | 圆心位置
 |radius| Number | 半径
@@ -135,7 +145,7 @@ canvas 画图辅助工具
 ---
 
 ### 矩形
-|type| - | ```rect```|
+|type| 取值 | ```rect```|
 |---|---|---
 |position| [x, y] | 矩形左上角位置
 |width| Number | 宽

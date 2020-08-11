@@ -13,6 +13,8 @@ const canvasPoster = {
         this.ctx = this.canvas.getContext('2d')
         this.width = params.width
         this.height = params.height
+        this.canvas.width = this.width
+        this.canvas.height = this.height
         this.guidelineSpace = params.guidelineSpace == undefined ? this.guidelineSpace : params.guidelineSpace
         this.guidelines = params.guidelines || this.guidelines
         this.guidelines && this.guideline()
@@ -142,7 +144,6 @@ const canvasPoster = {
         } else {
             this.ctx.fillRect(paint.position[0], paint.position[1], paint.width, paint.height)
         }
-        this.ctx.restore()
     },
 
     // 圆形
