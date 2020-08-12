@@ -70,6 +70,7 @@ canvas 画图辅助工具
 |height| Number | 画布高度
 |guidelines| Boolean | 是否开启辅助线。默认`true`
 |guidelineSpace| Number | 辅助线间隔，横线纵向一致，默认20 (单位px)
+|canvasBackground| none 或 颜色 | 画布颜色，none 无背景色
 
 ---
 

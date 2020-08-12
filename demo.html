@@ -40,8 +40,25 @@
                 height: 80,
                 color: '#f0f',  
                 style: 'stroke' // fill 填充，stroke 描边
+            }, {
+                type: 'text',
+                position: [200, 60],
+                content: '发你妹',
+                color: '#000'
+            }, {
+                type: 'image',
+                position: [0, 0],
+                src: './dog.png',
+                width: 150,
+                height: 100,
+                round: true
             }
         ])
+
+        let save = document.querySelector('#save')
+        save.onclick = function() {
+            canvasPoster.toDataURL()
+        }
         
     </script>
 </body>

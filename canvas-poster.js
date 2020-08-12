@@ -6,7 +6,11 @@ const canvasPoster = {
     guidelineSpace: 20,
     guidelines: true,
     roundClipImage: [],
+    loadImages: [],
     scale: 1,
+    drawDone: false,
+    canvasBackground: 'white', // 画布白色背景，none不设置背景就是透明
+    count: 0,
 
     init: function (el, params) {
         this.canvas = document.querySelector(el)
@@ -17,8 +21,6 @@ const canvasPoster = {
         this.canvas.height = this.height
         this.guidelineSpace = params.guidelineSpace == undefined ? this.guidelineSpace : params.guidelineSpace
         this.guidelines = params.guidelines || this.guidelines
-        this.guidelines && this.guideline()
-
         let scale = params.scale || this.scale
         this.ctx.scale(scale, scale)
 
@@ -27,17 +29,23 @@ const canvasPoster = {
 
     painting: function (paint) {
         if (paint instanceof Array) {
+            if (this.canvasBackground != 'none') {
+                paint.unshift({
+                    type: 'rect',
+                    position: [0, 0],
+                    width: this.width,
+                    height: this.height,
+                    color: this.canvasBackground,
+                    style: 'fill'
+                })
+            }
             paint.forEach(item => {
                 switch (item.type) {
                     case 'text':
                         this.textPaint(item)
                         break
                     case 'image':
-                        if (item.round) {
-                            this.roundClipImage.push(item)
-                        } else {
-                            this.imagePaint(item)
-                        }
+                        this.loadImages.push(item)
                         break
                     case 'line':
                         this.linePaint(item)
@@ -50,18 +58,30 @@ const canvasPoster = {
                         break
                 }
             })
+            
+            this.awaitList()
 
-            // 裁剪圆型img.onload 方法为异步操作，clip() 裁剪后，restore() 没有第一时间清除所以会出现绘图错乱，所以只能 one by one
-            if (this.roundClipImage.length != 0) {
-                let i = 0
-                this.imagePaint(this.roundClipImage[i], () => {
-                    if (++i < this.roundClipImage.length) {
-                        this.imagePaint(this.roundClipImage[i])
-                    }
-                })
-            }
         } else {
             new Error('painting must be Array')
+        }
+
+        this.guidelines && this.guideline()
+
+        return this
+    },
+
+    awaitList() {
+        if (this.loadImages.length != 0) {
+            if (this.count < this.loadImages.length) {
+                this.imagePaint(this.loadImages[this.count], () => {
+                    this.count++
+                    this.awaitList()
+                })
+            } else {
+                this.drawDone = true
+            }
+        } else {
+            this.drawDone = true
         }
     },
 
@@ -76,6 +96,8 @@ const canvasPoster = {
 
     // 图片 - 绘图
     imagePaint: function (paint, fn) {
+        console.log(`第${this.count}个`)
+        console.log(paint.src, fn)
         let _this = this
         if (!paint.src) {
             new Error('image src cannot be empty')
@@ -108,12 +130,14 @@ const canvasPoster = {
             let img = new Image()
             img.onload = function () {
                 _this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
+                typeof fn == 'function' && fn()
             }
             img.src = paint.src
         } else {
             this.ctx.save()
             let img = paint.src
             this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
+            typeof fn == 'function' && fn()
         }
     },
 
@@ -144,6 +168,7 @@ const canvasPoster = {
         } else {
             this.ctx.fillRect(paint.position[0], paint.position[1], paint.width, paint.height)
         }
+        this.ctx.restore()
     },
 
     // 圆形
@@ -205,8 +230,6 @@ const canvasPoster = {
             linePosition[0] += Number(paint.textIndent ? paint.textIndent : 0)
         }
 
-        console.log(paint.content, lineMoveTo[0])
-
         backgroundPosition[0] = lineMoveTo[0]
         backgroundPosition[1] = paint.position[1] - textSize.height + offset
 
@@ -228,8 +251,6 @@ const canvasPoster = {
             this.ctx.restore()
         }
     },
-
-    
 
     // canvas 辅助线
     guideline: function () {
@@ -359,6 +380,35 @@ const canvasPoster = {
 
     // 生成图片
     toDataURL() {
+        if(this.canvas) {
+            if (this.drawDone) {
+                console.log('画图完成，开始下载')
+                let base64Img = this.canvas.toDataURL('image/png', 1.0)
+                this.download(base64Img)
+                return base64Img
+            } else {
+                console.log('画图中')
+            }            
+        }
+    },
 
+    download(url) {
+        let aEl = document.createElement('a')
+        aEl.setAttribute('href', url)
+        aEl.setAttribute('download', (new Date()).getTime())
+        aEl.click()
+        console.log('下载完成')
     }
 }
+
+// Object.defineProperty(canvasPoster, 'drawDone', {
+//     get: function() {
+//         return canvasPoster.drawDone
+//     },
+
+//     set: function(value) {
+//         console.log('画完图，回调')
+//         canvasPoster.drawDone = value
+//         canvasPoster.toDataURL()
+//     }
+// })
