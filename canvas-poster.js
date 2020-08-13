@@ -58,7 +58,7 @@ const canvasPoster = {
                         break
                 }
             })
-            
+
             this.awaitList()
 
         } else {
@@ -96,29 +96,39 @@ const canvasPoster = {
 
     // 图片 - 绘图
     imagePaint: function (paint, fn) {
-        console.log(`第${this.count}个`)
-        console.log(paint.src, fn)
         let _this = this
         if (!paint.src) {
             new Error('image src cannot be empty')
             return
         }
+
+        // 画图-边框
+        _this.ctx.lineWidth = paint.border ? Number(paint.border) : 1
+
         // 圆形
         if (paint.round) {
             let img = new Image()
             let _this = this
-            img.onload = function() {
+            img.onload = function () {
                 let radius = 0
                 if (paint.width === paint.height) {
                     radius = paint.width / 2
                 } else {
                     radius = paint.width > paint.height ? paint.height / 2 : paint.width / 2
                 }
+
+                _this.ctx.beginPath()
                 _this.ctx.save()
-                _this.ctx.arc(Number(paint.position[0]) + radius, Number(paint.position[1]) + radius, radius, 0, Math.PI * 2, true)
+                _this.ctx.arc(Number(paint.position[0]) + radius, Number(paint.position[1]) + radius, radius, 0, Math.PI * 2, false)
+                paint.border && _this.ctx.stroke()
                 _this.ctx.clip()
                 _this.ctx.drawImage(img, paint.position[0], paint.position[1], radius * 2, radius * 2)
                 _this.ctx.restore()
+
+                if (_this.imageDrawDone) {
+                    console.log('图片列表绘制完成，开始生成图片')
+                    _this.toDataURL()
+                }
                 typeof fn == 'function' && fn()
             }
             img.src = paint.src
@@ -130,6 +140,10 @@ const canvasPoster = {
             let img = new Image()
             img.onload = function () {
                 _this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
+                if (_this.imageDrawDone) {
+                    console.log('图片列表绘制完成，开始生成图片')
+                    _this.toDataURL()
+                }
                 typeof fn == 'function' && fn()
             }
             img.src = paint.src
@@ -137,6 +151,10 @@ const canvasPoster = {
             this.ctx.save()
             let img = paint.src
             this.ctx.drawImage(img, paint.position[0], paint.position[1], Number(paint.width), Number(paint.height))
+            if (_this.imageDrawDone) {
+                console.log('图片列表绘制完成，开始生成图片')
+                _this.toDataURL()
+            }
             typeof fn == 'function' && fn()
         }
     },
@@ -282,7 +300,7 @@ const canvasPoster = {
     },
 
     rulerNum: function (num, position) {
-        this.ctx.font = '12px'
+        this.ctx.font = '12px sans-serif'
         this.ctx.fillText(num, position[0], position[1])
     },
 
@@ -380,15 +398,15 @@ const canvasPoster = {
 
     // 生成图片
     toDataURL() {
-        if(this.canvas) {
-            if (this.drawDone) {
+        if (this.canvas) {
+            if (this.imageDrawDone) {
                 console.log('画图完成，开始下载')
                 let base64Img = this.canvas.toDataURL('image/png', 1.0)
                 this.download(base64Img)
                 return base64Img
             } else {
                 console.log('画图中')
-            }            
+            }
         }
     },
 
@@ -401,14 +419,11 @@ const canvasPoster = {
     }
 }
 
-// Object.defineProperty(canvasPoster, 'drawDone', {
-//     get: function() {
-//         return canvasPoster.drawDone
-//     },
-
-//     set: function(value) {
-//         console.log('画完图，回调')
-//         canvasPoster.drawDone = value
-//         canvasPoster.toDataURL()
-//     }
-// })
+Object.defineProperty(canvasPoster, 'imageDrawDone', {
+    get() {
+        return !(canvasPoster.loadImages.length > canvasPoster.count)
+    },
+    set(value) {
+        canvasPoster.imageDrawDone = value
+    }
+})

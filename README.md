@@ -70,7 +70,7 @@ canvas 画图辅助工具
 |height| Number | 画布高度
 |guidelines| Boolean | 是否开启辅助线。默认`true`
 |guidelineSpace| Number | 辅助线间隔，横线纵向一致，默认20 (单位px)
-|canvasBackground| none 或 颜色 | 画布颜色，none 无背景色
+|canvasBackground| none 或 颜色 | 默认 white 画布颜色，none 无背景色
 
 ---
 
@@ -105,6 +105,7 @@ canvas 画图辅助工具
 |width|Number|宽度
 |height|Number|高度
 |round| ```true``` or ```false```|是否剪切成圆形
+|border|Number 默认为 `1`|当`round`为`true`时有效
 
 > ```src``` 使用页面中的img标签节点；当然最好使用地址
 ```javascript

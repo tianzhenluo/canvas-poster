@@ -29,29 +29,46 @@
         
         canvasPoster.init('#draw', {
             width: 375,
-            height: 600
+            height: 600,
+            guidelineSpace: 30
         })
 
         canvasPoster.painting([
-            {
-                type: 'rect',
-                position: [40, 220],
-                width: 100,
-                height: 80,
-                color: '#f0f',  
-                style: 'stroke' // fill 填充，stroke 描边
-            }, {
-                type: 'text',
-                position: [200, 60],
-                content: '发你妹',
-                color: '#000'
+           {
+                type: 'image',
+                position: [160, 120],
+                src: './dog.png',
+                width: 150,
+                height: 100,
+                round: true,
+                border: 1
             }, {
                 type: 'image',
-                position: [0, 0],
+                position: [60, 120],
                 src: './dog.png',
                 width: 150,
                 height: 100,
                 round: true
+            }, {
+                type: 'image',
+                position: [110, 120],
+                src: './dog.png',
+                width: 150,
+                height: 100,
+                round: true
+            }, {
+                type: 'image',
+                position: [10, 170],
+                src: './dog.png',
+                width: 150,
+                height: 100,
+                round: true
+            }, {
+                type: 'text',
+                position: [10, 100],
+                content: '种子',
+                color: '#f00',
+                font: '30px 黑体'
             }
         ])
 
