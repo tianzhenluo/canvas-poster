@@ -5,12 +5,12 @@ const canvasPoster = {
     height: 500,
     guidelineSpace: 20,
     guidelines: true,
-    roundClipImage: [],
     loadImages: [],
     scale: 1,
     drawDone: false,
     canvasBackground: 'white', // 画布白色背景，none不设置背景就是透明
     count: 0,
+    timer: null,
 
     init: function (el, params) {
         this.canvas = document.querySelector(el)
@@ -396,17 +396,65 @@ const canvasPoster = {
         this.ctx.restore()
     },
 
+    // 弹窗提示
+    alertTips(text, animation = true) {
+        if (!text) return
+        let pointCount = 0
+
+        let alertWrap = document.createElement('div')
+        alertWrap.setAttribute('id', 'alertTips')
+        alertWrap.setAttribute('style', 'position: fixed; width: 100vw; height: 100vh; top: 0; left:0;z-index: 999;display: flex;justify-content: center; align-items: center;')
+        
+        let alert = document.createElement('div')        
+        alert.setAttribute('style', 'background: rgba(0 , 0, 0, .5);  color: #fff; font-size: 14px;padding: 15px 10px;border-radius: 4px;')
+        
+        let textNode = document.createTextNode(text)
+
+        alert.appendChild(textNode)
+        alertWrap.appendChild(alert)
+        document.body.appendChild(alertWrap)
+
+        if (animation) {
+            let animatNode = document.createElement('span')
+            alert.appendChild(animatNode)
+            this.timer = setInterval(() => {
+                if (pointCount < 3) {
+                    pointCount++
+                    let point = document.createTextNode('.')
+                    animatNode.appendChild(point)
+                } else {
+                    pointCount = 0
+                    animatNode.innerText = ''
+                }                
+            }, 1000)
+        }
+    },
+
+    hiddenAlert() {
+        clearInterval(this.timer)
+        this.timer = null
+        let alertTips = document.querySelector('#alertTips')
+        if (!alertTips) return
+        document.body.removeChild(alertTips)
+    },
+
     // 生成图片
     toDataURL() {
         if (this.canvas) {
             if (this.imageDrawDone) {
                 console.log('画图完成，开始下载')
+                this.hiddenAlert()
                 let base64Img = this.canvas.toDataURL('image/png', 1.0)
                 this.download(base64Img)
                 return base64Img
             } else {
-                console.log('画图中')
+                if (!this.timer) {
+                    this.alertTips('绘图中，请稍后')
+                    console.log('画图中')
+                }
             }
+        } else {
+            new Error('Call the int method first!')
         }
     },
 
